@@ -1,7 +1,6 @@
 module Picasa
   class Client
-    attr_reader :user_id
-    attr_accessor :password, :authorization_header
+    attr_accessor :user_id, :password, :authorization_header
 
     # @param [Hash] credentials
     # @option credentials [String] :user_id google username/email
