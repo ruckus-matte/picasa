@@ -12,6 +12,12 @@ module Picasa
       @authorization_header = credentials[:authorization_header]
     end
 
+    def user_id=(new_user_id)
+      # need to establish a connection with the original user credentials before overriding
+      authenticate if authenticates?
+      @user_id = new_user_id
+    end
+
     # @return [API::Album]
     #
     # @example
