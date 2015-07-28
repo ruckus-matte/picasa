@@ -23,7 +23,34 @@ module Picasa
         headers = auth_header.merge({"Content-Type" => "multipart/related; boundary=\"#{params[:boundary]}\""})
 
         path = "/data/feed/api/user/#{user_id}/albumid/#{album_id}"
-        response = Connection.new.post(:path => path, :body => template.render, :headers => headers)
+        response = Connection.new.post(path: path, body: template.render, headers: headers)
+
+        Presenter::Photo.new(response.parsed_response["entry"])
+      end
+
+      # Updates metadata for photo
+      #
+      # @param [String] album_id album id
+      # @param [String] photo_id photo id
+      # @param [Hash] options request parameters
+      # @option options [String] :album_id album id that photo will be moved to
+      # @option options [String] :title title of photo
+      # @option options [String] :summary summary of photo
+      # @option options [String] :timestamp timestamp of photo
+      # @option options [String] :keywords
+      # @option options [String] :etag updates only when ETag matches - protects before destroying other client changes
+      #
+      # @return [Presenter::Photo] the updated photo
+      def update(album_id, photo_id, params = {})
+        template = Template.new(:update_photo, params)
+        headers = auth_header.merge({"Content-Type" => "application/xml",
+                                     "If-Match" => params.fetch(:etag, "*")})
+
+        if params.has_key?(:timestamp)
+          params[:timestamp] = params[:timestamp].to_i * 1000
+        end
+        path = "/data/entry/api/user/#{user_id}/albumid/#{album_id}/photoid/#{photo_id}"
+        response = Connection.new.patch(path: path, body: template.render, headers: headers)
 
         Presenter::Photo.new(response.parsed_response["entry"])
       end
@@ -41,7 +68,7 @@ module Picasa
       def destroy(album_id, photo_id, options = {})
         headers = auth_header.merge({"If-Match" => options.fetch(:etag, "*")})
         path = "/data/entry/api/user/#{user_id}/albumid/#{album_id}/photoid/#{photo_id}"
-        Connection.new.delete(:path => path, :headers => headers)
+        Connection.new.delete(path: path, headers: headers)
         true
       end
       alias :delete :destroy

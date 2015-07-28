@@ -58,6 +58,11 @@ describe Picasa::API::Album do
       assert_equal "Wojciech Wnętrzak", @album_list.nickname
     end
 
+    it "has cover_photo" do
+      expected = "https://lh6.googleusercontent.com/-ZqXRf3HicvI/SLakNnjixrE/AAAAAAAAAkc/3EAZ0eF3-CQ/Test.jpg"
+      assert_equal expected, @album_list.albums[0].media.cover_photo_url
+    end
+
     it "has thumbnail" do
       expected = "https://lh3.googleusercontent.com/-6ezHc54U8x0/AAAAAAAAAAI/AAAAAAAAAAA/PBuxm7Ehn6E/s64-c/106136347770555028022.jpg"
       assert_equal expected, @album_list.thumbnail
@@ -105,6 +110,10 @@ describe Picasa::API::Album do
 
     it "has summary" do
       assert_nil @album.summary
+    end
+
+    it "has subtitle" do
+      assert_equal "Opis albumu", @album.subtitle
     end
 
     it "has rights" do
@@ -225,7 +234,7 @@ describe Picasa::API::Album do
       end
 
       it "has timestamp" do
-        assert_equal "1219929243000", @photo.timestamp
+        assert_equal "1219929243", @photo.timestamp
       end
 
       it "has image version" do
@@ -260,7 +269,7 @@ describe Picasa::API::Album do
     it "creates album" do
       VCR.use_cassette("album-create") do
         attributes = {:title => "gem-test", :summary => "created from test suite <&>", :access => "protected",
-                      :location => "Gilowice", :keywords => "test"}
+          :location => "Gilowice", :keywords => "test"}
         album = Picasa::API::Album.new(:user_id => "w.wnetrzak@gmail.com", :authorization_header => AuthHeader).create(attributes)
 
         assert_equal "gem-test", album.title

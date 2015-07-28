@@ -19,6 +19,11 @@ module Picasa
         @links ||= array_wrap(safe_retrieve(parsed_body, "link")).map { |link| Link.new(link) }
       end
 
+      # @return [Integer]
+      def total_results
+        @total_results ||= map_to_integer(safe_retrieve(parsed_body, "openSearch$totalResults"))
+      end
+
       # @return [Presenter::Media]
       def media
         @media ||= Media.new(safe_retrieve(parsed_body, "media$group"))
@@ -47,6 +52,12 @@ module Picasa
       # @return [String]
       def summary
         @summary ||= safe_retrieve(parsed_body, "summary")
+      end
+
+      # Picasa API is not consistent - in show API this field contains summary
+      # @return [String]
+      def subtitle
+        @subtitle ||= safe_retrieve(parsed_body, "subtitle")
       end
 
       # @return [String]

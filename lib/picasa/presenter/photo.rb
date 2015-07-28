@@ -1,4 +1,5 @@
 require "picasa/presenter/base"
+require "picasa/presenter/exif"
 
 module Picasa
   module Presenter
@@ -26,6 +27,21 @@ module Picasa
       # @return [String]
       def etag
         @etag ||= safe_retrieve(parsed_body, "gd$etag")
+      end
+
+      # @return [Exif]
+      def exif
+        @exif ||= Exif.new(safe_retrieve(parsed_body, "exif$tags"))
+      end
+
+      # @return [Float]
+      def latitude
+        @latitude ||= map_to_float(location && location.split(" ")[0])
+      end
+
+      # @return [Float]
+      def longitude
+        @longitude ||= map_to_float(location && location.split(" ")[1])
       end
 
       # @return [DateTime]
@@ -80,7 +96,7 @@ module Picasa
 
       # @return [String]
       def timestamp
-        @timestamp ||= safe_retrieve(parsed_body, "gphoto$timestamp")
+        @timestamp ||= (safe_retrieve(parsed_body, "gphoto$timestamp").to_i / 1000).to_s
       end
 
       # @return [Integer]
@@ -106,6 +122,12 @@ module Picasa
       # @return ["pending", "ready", "final", "failed", nil]
       def video_status
         @video_status ||= safe_retrieve(parsed_body, "gphoto$videostatus")
+      end
+
+      private
+
+      def location
+        @location ||= safe_retrieve(parsed_body, "georss$where", "gml$Point", "gml$pos")
       end
     end
   end
